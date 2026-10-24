@@ -39,7 +39,7 @@ cargo add culvert-async
 Wrap your async transport in `Scdc` and await typed methods:
 
 ```rust
-use culvert_async::{CedLanes, ClearableUpdateFlags, FfeLevels, FrlConfig, FrlRate, Scdc, TmdsConfig};
+use culvert_async::{ClearableUpdateFlags, FfeLevels, FrlConfig, FrlRate, Scdc, TmdsConfig};
 
 let mut scdc = Scdc::new(transport);
 
@@ -73,7 +73,7 @@ if updates.flt_update {
 }
 
 // Read per-lane character error counts, the CED block in one read, checksum checked
-let reading = scdc.read_ced(CedLanes::from(FrlRate::Rate12Gbps4Lanes)).await?;
+let reading = scdc.read_ced(FrlRate::Rate12Gbps4Lanes.lanes()).await?;
 for warning in reading.iter_warnings() {
     // e.g. a checksum mismatch: the counts may be torn; read again or distrust them
 }

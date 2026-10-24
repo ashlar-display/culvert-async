@@ -7,7 +7,7 @@
 
 use core::convert::Infallible;
 use culvert_async::{
-    CedLanes, ClearableUpdateFlags, FfeLevels, FrlConfig, FrlRate, Scdc, TmdsConfig,
+    ClearableUpdateFlags, FfeLevels, FrlConfig, FrlRate, HdmiLanes, Scdc, TmdsConfig,
 };
 use hdmi_hal_async::scdc::{ScdcTransport, read_block_bytewise};
 
@@ -121,7 +121,7 @@ async fn run() {
     );
 
     // A 3-lane link: lanes 0–2, the checksum over 0x50–0x56.
-    let reading = scdc.read_ced(CedLanes::Three).await.unwrap();
+    let reading = scdc.read_ced(HdmiLanes::Three).await.unwrap();
     let ced = reading.counters;
     println!("CED lane 0:         {:?}", ced.lane0.map(|c| c.value()));
     println!("CED lane 1:         {:?}", ced.lane1.map(|c| c.value()));

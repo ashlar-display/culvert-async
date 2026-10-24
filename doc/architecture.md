@@ -37,7 +37,7 @@ culvert-async covers:
 - re-exports of culvert's public types (`ScdcError`, `ProtocolError`, `TmdsConfig`,
   `ScramblerStatus`, `Config0`, `FrlConfig`, `FfeLevels`, `FrlRate`, `SourceTestConfig`,
   `StatusFlags`, `LtpReq`, `LtpRequests`, `UpdateFlags`, `ClearableUpdateFlags`,
-  `CedCount`, `CedCounters`, `CedLanes`, `CedReading`, `CedWarning`, `RsCorrectionCount`),
+  `CedCount`, `CedCounters`, `HdmiLanes` (display-types', through culvert), `CedReading`, `CedWarning`, `RsCorrectionCount`),
   and of hdmi-hal-async's
   `ScdcTransport`, the bound on `Scdc<T>`,
 - the `plumbob_async::ScdcClient` implementation for `Scdc<T>`, behind the `plumbob-async`
@@ -85,7 +85,7 @@ impl<T: hdmi_hal_async::scdc::ScdcTransport> Scdc<T> {
     pub async fn read_sink_version(&mut self) -> Result<u8, ScdcError<T::Error>>;
     pub async fn write_frl_config(&mut self, config: FrlConfig) -> Result<(), ScdcError<T::Error>>;
     pub async fn read_ltp_requests(&mut self) -> Result<LtpRequests, ScdcError<T::Error>>;
-    pub async fn read_ced(&mut self, lanes: CedLanes) -> Result<CedReading, ScdcError<T::Error>>;
+    pub async fn read_ced(&mut self, lanes: HdmiLanes) -> Result<CedReading, ScdcError<T::Error>>;
     // … one async method per culvert method
 }
 ```
@@ -94,7 +94,7 @@ Each method reads or writes the registers `culvert::codec` names and converts wi
 matching `codec` function:
 
 ```rust
-pub async fn read_ced(&mut self, lanes: CedLanes) -> Result<CedReading, ScdcError<T::Error>> {
+pub async fn read_ced(&mut self, lanes: HdmiLanes) -> Result<CedReading, ScdcError<T::Error>> {
     let mut block = [0; codec::CED_BLOCK_LEN];
     self.transport
         .read_block(codec::CED_BLOCK_START, &mut block)
@@ -105,9 +105,11 @@ pub async fn read_ced(&mut self, lanes: CedLanes) -> Result<CedReading, ScdcErro
 ```
 
 The three multi-register reads — `read_ltp_requests` (0x41–0x42), `read_ced` (0x50–0x58)
-and `read_rs_correction` (0x59–0x5A) — are each one `read_block`, so on a transport that
-reads a block in one transaction a sink update cannot fall between their registers. The
-CED checksum is checked by `decode_ced_block`, which returns the counters with a
+and `read_rs_correction` (0x59–0x5A) — are each one `read_block`: one transaction, so the
+transport does not split their registers; whether the sink holds them still is up to the
+sink, and a bytewise transport or a bus driver that reads byte by byte splits them anyway.
+The CED checksum, the one protection that holds on every transport and adapter, is checked
+by `decode_ced_block`, which returns the counters with a
 `CedWarning` when it fails rather than an error; culvert's `doc/architecture.md`
 ("Character Error Detection", "Error Handling") records the coverage, its sources, how
 the counters behave and why a mismatch is a warning.
@@ -262,11 +264,13 @@ calls — and the transport says what a cancelled transfer leaves behind (hdmi-h
 training attempt to TMDS). What the dropped call did is unknown; `Scdc<T>`'s
 documentation says, method by method, what to do about it:
 
-- whole-register writes (`Source_Version`, `TMDS_Config`, `Config_0`, `Config_1`) are
-  safe to repeat;
+- whole-register writes (`Source_Version`, `TMDS_Config`, `Config_0`, `Config_1`) write
+  the same contents when repeated, but a `Config_1` write is what starts training on the
+  sink, so repeating it mid-training may restart it: to abandon an attempt, return to TMDS
+  (`exit_to_tmds`) instead;
 - `clear_update_flags` is write-1-to-clear: repeating it can clear a flag the sink set
-  again meanwhile, harmless for `CED_Update` / `RSED_Update` (latched hints: the counts
-  stay in the counters), not for `FLT_Update` or `FRL_Start`, so read `Update_0` again
+  again meanwhile, harmless for `CED_Update` / `RSED_Update` (hints kept until cleared:
+  any counts stay in the counters), not for `FLT_Update` or `FRL_Start`, so read `Update_0` again
   and clear only what is set;
 - reads are repeated, except the CED and RS counters, which a sink may clear on read, so
   a dropped read of them can lose counts.

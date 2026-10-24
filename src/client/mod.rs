@@ -29,11 +29,15 @@ mod test_transport;
 /// then unknown, method by method:
 ///
 /// - **Writes that set a whole register** — `write_source_version`, `write_tmds_config`,
-///   `write_config_0`, `write_frl_config` — may or may not have reached the sink, and are
-///   safe to repeat: writing the same value again has the same effect.
+///   `write_config_0`, `write_frl_config` — may or may not have reached the sink.
+///   Repeating one writes the same register contents again. What the write sets off on
+///   the sink is another matter: a `Config_1` write ([`write_frl_config`]) is what starts
+///   link training there, so repeating it mid-training may restart the sink's training.
+///   To abandon a training attempt, return the link to TMDS (plumbob-async's
+///   `exit_to_tmds`) rather than repeating the write.
 /// - **`clear_update_flags`** writes 1 to clear, so repeating it can clear a flag the sink
 ///   set again in the meantime. For `CED_Update` and `RSED_Update` that loses at most a
-///   hint: the counts stay in the counters, which are read regularly anyway. For a flag
+///   hint: any counts stay in the counters, which are read regularly anyway. For a flag
 ///   you act on, such as `FLT_Update` or `FRL_Start`, read `Update_0` again
 ///   ([`read_update_flags`]) and clear only what is set, rather than repeating the clear.
 /// - **Reads** change nothing on the sink and are read again — except the error counters
@@ -41,6 +45,7 @@ mod test_transport;
 ///   a dropped read of them can lose counts.
 ///
 /// [`read_update_flags`]: Self::read_update_flags
+/// [`write_frl_config`]: Self::write_frl_config
 /// [`read_ced`]: Self::read_ced
 /// [`read_rs_correction`]: Self::read_rs_correction
 ///

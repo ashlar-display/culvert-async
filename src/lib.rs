@@ -24,8 +24,8 @@ mod client;
 
 pub use client::Scdc;
 pub use culvert::{
-    CedCount, CedCounters, CedLanes, CedReading, CedWarning, ClearableUpdateFlags, Config0,
-    FfeLevels, FrlConfig, FrlRate, LtpReq, LtpRequests, ProtocolError, RsCorrectionCount,
+    CedCount, CedCounters, CedReading, CedWarning, ClearableUpdateFlags, Config0, FfeLevels,
+    FrlConfig, FrlRate, HdmiLanes, LtpReq, LtpRequests, ProtocolError, RsCorrectionCount,
     ScdcError, ScramblerStatus, SourceTestConfig, StatusFlags, TmdsConfig, UpdateFlags,
 };
 /// The async transport `Scdc<T>` is generic over, re-exported from `hdmi-hal-async`.

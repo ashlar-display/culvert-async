@@ -7,7 +7,7 @@
 
 use core::convert::Infallible;
 use culvert_async::{
-    CedLanes, ClearableUpdateFlags, Config0, FfeLevels, FrlConfig, FrlRate, LtpReq, Scdc,
+    ClearableUpdateFlags, Config0, FfeLevels, FrlConfig, FrlRate, HdmiLanes, LtpReq, Scdc,
     ScdcTransport, SendScdcTransport, TmdsConfig,
 };
 use hdmi_hal_async::scdc::read_block_bytewise;
@@ -242,7 +242,7 @@ async fn read_ced_decodes_valid_and_invalid_lanes() {
     transport.set(0x58, 0x00);
     let mut scdc = Scdc::new(transport);
 
-    let reading = scdc.read_ced(CedLanes::Three).await.unwrap();
+    let reading = scdc.read_ced(HdmiLanes::Three).await.unwrap();
 
     let ced = reading.counters;
     assert_eq!(ced.lane0.map(|c| c.value()), Some(0x0134));
@@ -255,7 +255,7 @@ async fn read_ced_decodes_valid_and_invalid_lanes() {
 #[pollster::test]
 async fn read_ced_all_invalid() {
     let mut scdc = Scdc::new(SimulatedScdc::new());
-    let reading = scdc.read_ced(CedLanes::Four).await.unwrap();
+    let reading = scdc.read_ced(HdmiLanes::Four).await.unwrap();
     // All zero: no counts, and a valid checksum.
     assert_eq!(reading.warnings(), []);
     let ced = reading.counters;
@@ -272,7 +272,7 @@ async fn every_type_is_re_exported_at_the_crate_root() {
     // Each line names one re-export, so removing or hiding one fails to compile.
     let _: Option<culvert_async::CedCount> = None;
     let _: Option<culvert_async::CedCounters> = None;
-    let _: Option<culvert_async::CedLanes> = None;
+    let _: Option<culvert_async::HdmiLanes> = None;
     let _: Option<culvert_async::CedReading> = None;
     let _: Option<culvert_async::CedWarning> = None;
     let _: Option<culvert_async::ClearableUpdateFlags> = None;
@@ -343,7 +343,7 @@ async fn every_operation<T: SendScdcTransport>(scdc: &mut Scdc<T>) {
     let _ = send(scdc.read_ltp_requests()).await;
     let _ = send(scdc.read_update_flags()).await;
     let _ = send(scdc.clear_update_flags(ClearableUpdateFlags::default())).await;
-    let _ = send(scdc.read_ced(CedLanes::Three)).await;
+    let _ = send(scdc.read_ced(HdmiLanes::Three)).await;
     let _ = send(scdc.read_rs_correction()).await;
 }
 

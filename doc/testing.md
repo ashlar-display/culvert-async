@@ -45,12 +45,13 @@ executor.
 
 ### Torn reads (`tests/torn_reads.rs`)
 
-culvert's regression tests for the torn CED read (review B13 of the FRL rework), made
-async: a sink whose lane 0 counter ticks while it is read, with a checksum kept correct for
-its current value. Read one register at a time, 0x00FF ticking to 0x0100 reads back as
-0x01FF with a `ChecksumMismatch`; read as one block, during which the sink holds its
-registers still, it is 0x00FF with no warning; a sweep over starting counts shows a
-counter ticking between bytes never passes the checksum.
+culvert's regression tests for the torn CED read, made async: a sink whose lane 0 counter
+ticks while it is read, with a checksum kept correct for its current value. Read one
+register at a time, 0x00FF ticking to 0x0100 reads back as 0x01FF with a
+`ChecksumMismatch`. Read as one block from a snapshotting sink, one that holds its
+registers still during the transaction (`Block`; the `read_block` contract leaves that to
+the sink), it is 0x00FF with no warning. A sweep over starting counts shows a counter
+ticking by one per byte never passes the checksum (a larger jump can).
 
 The CED unit tests (`src/client/ced.rs`) match `CedWarning`s by their fields rather than
 building them: the variants are `#[non_exhaustive]`, so outside culvert they can be
