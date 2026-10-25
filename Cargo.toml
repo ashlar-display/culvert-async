@@ -22,9 +22,9 @@ unexpected_cfgs = { level = "warn", check-cfg = ["cfg(docsrs)"] }
 plumbob-async = ["dep:plumbob-async", "culvert/plumbob"]
 
 [dependencies]
-culvert = { version = "0.2.0", default-features = false }
-hdmi-hal-async = { version = "0.2.1", default-features = false }
-plumbob-async = { version = "0.2.0", optional = true, default-features = false }
+culvert = { version = "0.3", default-features = false }
+hdmi-hal-async = { version = "0.3", default-features = false }
+plumbob-async = { version = "0.3", optional = true, default-features = false }
 
 [[example]]
 name = "scdc"
@@ -33,15 +33,3 @@ path = "examples/scdc/main.rs"
 [dev-dependencies]
 display-types = { version = "0.4", default-features = false }
 pollster = { version = "0.3", features = ["macro"] }
-
-# Temporary, until culvert (checked CED block reads), plumbob-async and plumbob (without
-# `read_ced`), hdmi-hal-async and hdmi-hal (required `read_block`) and display-types 0.4.3
-# (`HdmiForumFrl::lanes`) are published: replaces them for the whole graph, each other's
-# dependencies included. Remove before merging.
-[patch.crates-io]
-culvert = { path = "../culvert" }
-plumbob-async = { path = "../plumbob-async" }
-plumbob = { path = "../plumbob" }
-hdmi-hal-async = { path = "../hdmi-hal-async" }
-hdmi-hal = { path = "../hdmi-hal" }
-display-types = { path = "../display-types" }
