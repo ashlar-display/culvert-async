@@ -19,15 +19,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **With the `plumbob-async` feature, `Scdc<T>` no longer implements a `read_ced`**:
   plumbob-async's `ScdcClient` no longer has one. Read CED from `Scdc<T>` directly.
 - **Every `ScdcTransport` must implement `read_block`**: culvert-async requires the
-  hdmi-hal-async release where it is required. A transport that cannot read a block in one
-  transaction adds `use hdmi_hal_async::scdc::read_block_bytewise;` and implements it with
-  that.
+  hdmi-hal-async release where it is required (0.3). A transport that cannot read a block
+  in one transaction adds `use hdmi_hal_async::scdc::read_block_bytewise;` and implements
+  it with that.
 - **`read_ltp_requests` and `read_rs_correction` read their two registers with one
   `read_block`**, as in culvert, so they now depend on the transport's `read_block`: one
   that fails it fails these reads, and with the `plumbob-async` feature that fails link
   training. Neither has a checksum, so a torn read of them cannot be detected.
-- **culvert, plumbob-async, hdmi-hal-async** move to their releases with these changes;
-  the types re-exported from them change with them.
+- **Requires culvert 0.3, hdmi-hal-async 0.3 and, with the `plumbob-async` feature,
+  plumbob-async 0.3**, the releases with these changes (on hdmi-hal 0.6 and plumbob 0.4);
+  the types re-exported from them change with them. Move them alongside this crate.
 
 ### Added
 
@@ -54,6 +55,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   are aligned across the stack, with `ashlar` and `hdmi` on every crate; `ashlar` and
   `async` are added, `embedded` is dropped in favour of more specific keywords. Categories
   gain `no-std::no-alloc`. The crate's `homepage` is now the Ashlar website.
+- **Moved to the `ashlar-display` organization** — the repository is now
+  `ashlar-display/culvert-async` (the old URLs redirect), and `repository` points there.
+  Releases are attested and published from the new repository; 0.2.0, attested before the
+  move, verifies with `--owner DracoWhitefire --signer-repo DracoWhitefire/culvert-async`
+  (see "Verifying releases" in the README). The code of conduct is now the organization's,
+  shared by every Ashlar repository; the repository's own copy is removed.
 
 ## [0.2.0] - 2026-10-18
 

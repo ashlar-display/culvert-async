@@ -325,7 +325,8 @@ The principles are culvert's:
 - **Attested releases.** From 0.2.0, every release is published through a GitHub Actions
   workflow, with crates.io trusted publishing, that signs the `.crate` package with
   [SLSA Build Level 2](https://slsa.dev) provenance. Verify with
-  `gh attestation verify <file> --repo DracoWhitefire/culvert-async`. 0.1.0 was uploaded
-  by hand, without provenance.
+  `gh attestation verify <file> --repo ashlar-display/culvert-async` (0.2.0, from before
+  the move to the `ashlar-display` organization: see "Verifying releases" in the README).
+  0.1.0 was uploaded by hand, without provenance.
 
 [`culvert::codec`]: https://docs.rs/culvert/latest/culvert/codec/index.html
