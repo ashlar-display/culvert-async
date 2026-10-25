@@ -3,7 +3,7 @@
 culvert-async moves in lockstep with culvert: it uses culvert's register map
 (`culvert::codec`) and gains the async counterpart of each new culvert method in its next
 release. Its register items are therefore culvert's — see culvert's
-[`doc/roadmap.md`](https://github.com/DracoWhitefire/culvert/blob/main/doc/roadmap.md):
+[`doc/roadmap.md`](https://github.com/ashlar-display/culvert/blob/main/doc/roadmap.md):
 
 - **`LIP_Update` (`Update_0` bit 7, HDMI 2.2)** — a field for the flag.
 - **`Update_1` (0x11)** — wrapped if a field is ever defined.
