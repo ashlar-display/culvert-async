@@ -7,6 +7,63 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-10-25
+
+### Breaking changes
+
+- **`read_ced` takes the link's lane count and returns a `CedReading`**, as in culvert:
+  `read_ced(lanes: HdmiLanes) -> Result<CedReading, ScdcError<_>>`. It reads the CED block
+  (0x50–0x58) with one `read_block` and checks the checksum at 0x56 (`culvert::codec::
+  decode_ced_block`). Read byte by byte, a counter the sink updated between its two bytes
+  could read back as a value it never held, and nothing said so. A mismatch is a
+  `CedWarning` next to the counters, not an error. Migration:
+  `read_ced(rate.lanes())` (TMDS: `HdmiLanes::Three`) and `reading.counters`.
+- **With the `plumbob-async` feature, `Scdc<T>` no longer implements a `read_ced`**:
+  plumbob-async's `ScdcClient` no longer has one. Read CED from `Scdc<T>` directly.
+- **Every `ScdcTransport` must implement `read_block`**: culvert-async requires the
+  hdmi-hal-async release where it is required (0.3). A transport that cannot read a block
+  in one transaction adds `use hdmi_hal_async::scdc::read_block_bytewise;` and implements
+  it with that.
+- **`read_ltp_requests` and `read_rs_correction` read their two registers with one
+  `read_block`**, as in culvert, so they now depend on the transport's `read_block`: one
+  that fails it fails these reads, and with the `plumbob-async` feature that fails link
+  training. Neither has a checksum, so a torn read of them cannot be detected.
+- **Requires culvert 0.3, hdmi-hal-async 0.3 and, with the `plumbob-async` feature,
+  plumbob-async 0.3**, the releases with these changes (on hdmi-hal 0.6 and plumbob 0.4);
+  the types re-exported from them change with them. Move them alongside this crate.
+
+### Added
+
+- **`HdmiLanes`** (display-types', through culvert; `FrlRate::lanes()` gives it for every
+  rate), **`CedReading`** and **`CedWarning`**, re-exported from culvert.
+- **Cancellation, method by method**, in `Scdc`'s documentation: stop between calls rather
+  than dropping a future mid-flight; after a dropped call, a repeated whole-register write
+  writes the same contents (but a repeated `Config_1` write may restart the sink's
+  training: return to TMDS instead), a repeated `clear_update_flags` can clear a flag the sink set again (harmless
+  for `CED_Update` / `RSED_Update`, whose counts stay in the counters; not for `FLT_Update` or `FRL_Start`: read `Update_0`
+  again), and reads are repeated, except the error counters, which a sink may clear on
+  read.
+
+### Changed
+
+- **The CED and RS counters' documentation says how they behave**, as culvert's does
+  (saturation at 0x7FFF, clear on read possible, resets, `CED_Update` / `RSED_Update` set
+  by the sink and kept until cleared, a hint at most). `clear_update_flags` says to clear
+  only the flags read, and the CED and RS flags before reading the counters, as culvert's
+  does.
+
+- **Part of Ashlar** — the README now opens with a block naming the
+  [Ashlar](https://ashlar-display.org) stack and linking the other crates in it. Keywords
+  are aligned across the stack, with `ashlar` and `hdmi` on every crate; `ashlar` and
+  `async` are added, `embedded` is dropped in favour of more specific keywords. Categories
+  gain `no-std::no-alloc`. The crate's `homepage` is now the Ashlar website.
+- **Moved to the `ashlar-display` organization** — the repository is now
+  `ashlar-display/culvert-async` (the old URLs redirect), and `repository` points there.
+  Releases are attested and published from the new repository; 0.2.0, attested before the
+  move, verifies with `--owner DracoWhitefire --signer-repo DracoWhitefire/culvert-async`
+  (see "Verifying releases" in the README). The code of conduct is now the organization's,
+  shared by every Ashlar repository; the repository's own copy is removed.
+
 ## [0.2.0] - 2026-10-18
 
 ### Breaking changes
