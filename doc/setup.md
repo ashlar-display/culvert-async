@@ -5,7 +5,7 @@
 ## Clone and build
 
 ```sh
-git clone https://github.com/DracoWhitefire/culvert-async.git
+git clone https://github.com/ashlar-display/culvert-async.git
 cd culvert-async
 cargo build
 ```
