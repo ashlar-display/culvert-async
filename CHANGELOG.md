@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Breaking changes
+
+- **Requires hdmi-hal-async 0.4**, its breaking release on hdmi-hal 0.7: the transport traits
+  this crate's client is built on are 0.4's, whose errors are bounded by `DdcError`.
+- **Requires culvert's breaking release on hdmi-hal 0.7**, whose codec this crate shares;
+  `ScramblerStatus` carries the byte read (`raw`), so a status read from a sink that sets
+  reserved bits no longer compares equal to `ScramblerStatus::new`'s.
+
 ### Changed
 
 - **The README's Ashlar block links the stack's crate list** instead of naming every crate,

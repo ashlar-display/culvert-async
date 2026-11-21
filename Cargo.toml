@@ -24,7 +24,7 @@ plumbob-async = ["dep:plumbob-async", "culvert/plumbob"]
 
 [dependencies]
 culvert = { version = "0.3", default-features = false }
-hdmi-hal-async = { version = "0.3", default-features = false }
+hdmi-hal-async = { version = "0.4", default-features = false }
 plumbob-async = { version = "0.3", optional = true, default-features = false }
 
 [[example]]
@@ -34,3 +34,8 @@ path = "examples/scdc/main.rs"
 [dev-dependencies]
 display-types = { version = ">=0.4.3, <0.6", default-features = false }
 pollster = { version = "0.3", features = ["macro"] }
+
+# Prototype against culvert's unreleased breaking release: a pushed commit of its
+# feat/tmds-config branch, on hdmi-hal 0.7, moved by hand. Removed when it is released.
+[patch.crates-io]
+culvert = { git = "https://github.com/ashlar-display/culvert", rev = "acab6379a04b6feb9e6740e4ef143dba4906de06" }
