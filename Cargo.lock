@@ -14,7 +14,7 @@ version = "0.3.1"
 source = "git+https://github.com/ashlar-display/culvert?rev=acab6379a04b6feb9e6740e4ef143dba4906de06#acab6379a04b6feb9e6740e4ef143dba4906de06"
 dependencies = [
  "display-types",
- "hdmi-hal 0.7.0",
+ "hdmi-hal",
  "plumbob",
 ]
 
@@ -24,7 +24,7 @@ version = "0.3.1"
 dependencies = [
  "culvert",
  "display-types",
- "hdmi-hal-async 0.4.0",
+ "hdmi-hal-async",
  "plumbob-async",
  "pollster",
 ]
@@ -40,15 +40,6 @@ dependencies = [
 
 [[package]]
 name = "hdmi-hal"
-version = "0.6.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "33358dac26d307b3111dec4109fb11f3be6470d688f686e5979879822a76c0bf"
-dependencies = [
- "display-types",
-]
-
-[[package]]
-name = "hdmi-hal"
 version = "0.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4f6f586de7562829805e036c9d35d5ccc67949933c6112240c03fbb6e30e0f09"
@@ -58,42 +49,30 @@ dependencies = [
 
 [[package]]
 name = "hdmi-hal-async"
-version = "0.3.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d1e16291988bf1db6ccc1c99bcb353f3f6b18e80ba9c1b90de908bbd59f033f1"
-dependencies = [
- "display-types",
- "hdmi-hal 0.6.0",
-]
-
-[[package]]
-name = "hdmi-hal-async"
 version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "223a44cef55d956a2d7b333dbd30734b2571a1aea884e6fe6b99780f41eb8017"
 dependencies = [
  "display-types",
- "hdmi-hal 0.7.0",
+ "hdmi-hal",
 ]
 
 [[package]]
 name = "plumbob"
-version = "0.4.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ddccd575b53d4b3e2d45e3c7d18388eed8d2fac5966fad30118cfb109c9d8289"
+version = "0.4.1"
+source = "git+https://github.com/ashlar-display/plumbob?rev=2e244830b850eb27167e58d00b4814ac4fc0e1af#2e244830b850eb27167e58d00b4814ac4fc0e1af"
 dependencies = [
  "display-types",
- "hdmi-hal 0.6.0",
+ "hdmi-hal",
 ]
 
 [[package]]
 name = "plumbob-async"
-version = "0.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "982d57fa38ec50d3927863127dd3b3af52135e22be321f1b0f5e95f77cd8c151"
+version = "0.3.1"
+source = "git+https://github.com/ashlar-display/plumbob-async?rev=e526a055b7ab0f1cb74e160fc7c45d685381b903#e526a055b7ab0f1cb74e160fc7c45d685381b903"
 dependencies = [
  "display-types",
- "hdmi-hal-async 0.3.1",
+ "hdmi-hal-async",
  "plumbob",
 ]
 

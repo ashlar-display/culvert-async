@@ -14,6 +14,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Requires culvert's breaking release on hdmi-hal 0.7**, whose codec this crate shares;
   `ScramblerStatus` carries the byte read (`raw`), so a status read from a sink that sets
   reserved bits no longer compares equal to `ScramblerStatus::new`'s.
+- **The `plumbob-async` feature requires plumbob-async's breaking release**, on
+  hdmi-hal-async 0.4, whose PHY trait is `FrlPhy` (was `HdmiPhy`); the `ScdcClient`
+  implementation it enables is unchanged.
 
 ### Changed
 
