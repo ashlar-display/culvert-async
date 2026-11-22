@@ -17,7 +17,8 @@ use std::sync::Mutex;
 
 use culvert_async::{Scdc, ScdcError};
 use display_types::cea861::hdmi_forum::HdmiForumFrl;
-use hdmi_hal_async::phy::{HdmiPhy, SendHdmiPhy};
+use hdmi_hal_async::ddc::{DdcError, DdcErrorKind, NoAcknowledgeSource};
+use hdmi_hal_async::phy::{FrlPhy, SendFrlPhy};
 use hdmi_hal_async::scdc::{ScdcTransport, SendScdcTransport, read_block_bytewise};
 use hdmi_hal_async::{EqParams, FrlOutput, LanePatterns, LtpPattern};
 use plumbob_async::{
@@ -218,6 +219,12 @@ impl SinkTransport {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 struct Nack;
 
+impl DdcError for Nack {
+    fn kind(&self) -> DdcErrorKind {
+        DdcErrorKind::NoAcknowledge(NoAcknowledgeSource::Unknown)
+    }
+}
+
 impl ScdcTransport for SinkTransport {
     type Error = Nack;
 
@@ -253,7 +260,7 @@ struct Phy {
     output: Vec<FrlOutput>,
 }
 
-impl HdmiPhy for Phy {
+impl FrlPhy for Phy {
     type Error = Infallible;
 
     async fn set_frl_rate(&mut self, rate: HdmiForumFrl) -> Result<(), Infallible> {
@@ -273,10 +280,6 @@ impl HdmiPhy for Phy {
 
     async fn adjust_equalization(&mut self, params: EqParams) -> Result<(), Infallible> {
         self.eq.push(params);
-        Ok(())
-    }
-
-    async fn set_scrambling(&mut self, _enabled: bool) -> Result<(), Infallible> {
         Ok(())
     }
 }
@@ -699,27 +702,23 @@ impl SendScdcTransport for SendSinkTransport {
 /// The recording PHY behind hdmi-hal-async's `Send` twin.
 struct SendPhy(Phy);
 
-impl SendHdmiPhy for SendPhy {
+impl SendFrlPhy for SendPhy {
     type Error = Infallible;
 
     async fn set_frl_rate(&mut self, rate: HdmiForumFrl) -> Result<(), Infallible> {
-        HdmiPhy::set_frl_rate(&mut self.0, rate).await
+        FrlPhy::set_frl_rate(&mut self.0, rate).await
     }
 
     async fn send_ltp(&mut self, patterns: LanePatterns) -> Result<(), Infallible> {
-        HdmiPhy::send_ltp(&mut self.0, patterns).await
+        FrlPhy::send_ltp(&mut self.0, patterns).await
     }
 
     async fn set_frl_output(&mut self, output: FrlOutput) -> Result<(), Infallible> {
-        HdmiPhy::set_frl_output(&mut self.0, output).await
+        FrlPhy::set_frl_output(&mut self.0, output).await
     }
 
     async fn adjust_equalization(&mut self, params: EqParams) -> Result<(), Infallible> {
-        HdmiPhy::adjust_equalization(&mut self.0, params).await
-    }
-
-    async fn set_scrambling(&mut self, enabled: bool) -> Result<(), Infallible> {
-        HdmiPhy::set_scrambling(&mut self.0, enabled).await
+        FrlPhy::adjust_equalization(&mut self.0, params).await
     }
 }
 
@@ -733,7 +732,7 @@ type Attempts = (
 );
 
 /// Trains, exits and trains again with events.
-async fn train_exit_train<T: ScdcTransport, P: HdmiPhy>(
+async fn train_exit_train<T: ScdcTransport, P: FrlPhy>(
     trainer: &mut FrlTrainer<Scdc<T>, P>,
     config: &TrainingConfig,
 ) -> Attempts {
@@ -756,7 +755,7 @@ async fn train_exit_train<T: ScdcTransport, P: HdmiPhy>(
 /// PHY's `Send` twins, as a future that must be `Send`: this compiles only if `Scdc<T>`'s
 /// futures are `Send` over a `SendScdcTransport`, so training through it could be spawned
 /// on a multi-threaded executor without a second client type.
-fn spawnable<'a, T: SendScdcTransport, P: SendHdmiPhy>(
+fn spawnable<'a, T: SendScdcTransport, P: SendFrlPhy>(
     trainer: &'a mut FrlTrainer<Scdc<T>, P>,
     config: &'a TrainingConfig,
 ) -> impl Future<Output = Attempts> + Send + 'a {

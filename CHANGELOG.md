@@ -7,6 +7,81 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-11-22
+
+### Breaking changes
+
+- **Requires hdmi-hal-async 0.4**, its breaking release on hdmi-hal 0.7: the transport traits
+  this crate's client is built on are 0.4's, whose errors are bounded by `DdcError`.
+- **Requires culvert 0.4**, on hdmi-hal 0.7, whose codec this crate shares;
+  `ScramblerStatus` carries the byte read (`raw`), so a status read from a sink that sets
+  reserved bits no longer compares equal to `ScramblerStatus::new`'s.
+- **The `plumbob-async` feature requires plumbob-async 0.4**, on hdmi-hal-async 0.4, whose
+  PHY trait is `FrlPhy` (was `HdmiPhy`); the `ScdcClient` implementation it enables is
+  unchanged.
+
+### Changed
+
+- **The README's Ashlar block links the stack's crate list** instead of naming every crate,
+  so it no longer goes stale on crates.io when a crate is added.
+
+### Internal
+
+- **The client is tested against maquette's simulated sink** (`tests/simulated_sink.rs`, a
+  dev-dependency on maquette): over hdmi-hal-async's `SendScdcOverDdc` on its async DDC bus,
+  a bring-up on another thread, the update flags, the version registers and bus errors.
+- **The README's Rust example runs as a doctest** (`ReadmeDoctests` in `lib.rs`, compiled
+  only for `cargo test`), on `pollster` against a hidden sink that is ready for FRL training, has `FLT_update`
+  pending and reports errors on lane 0, so every branch of it runs; hidden asserts check
+  what it writes and reads.
+- **The published `.crate` holds only what the crate needs**: `include` in `Cargo.toml`
+  limits it to the sources, `doc/`, the README, changelog and license; it also shipped the
+  CI workflows, Dependabot configuration, coverage baseline, tests and example.
+- **CI runs with a read-only token by default**: `ci.yml` sets `permissions: contents: read`;
+  the coverage job keeps the write permissions it needs to open its ratchet PR. The test job
+  ran with the repository's default token permissions.
+- **CI's test job does not keep the checkout's git credentials** (`persist-credentials:
+  false`); it never pushes. The coverage job keeps them to push its ratchet branch.
+- **CI fails on `main` when `Cargo.toml` has a `[patch]` section**: `cargo package` drops
+  it, so a release built with one would not build from crates.io.
+- **Clippy lints the tests and the example too, with and without the `plumbob-async`
+  feature** (`--all-targets`), in CI and in the publish workflow's `verify` job; it linted
+  only the library, with every feature.
+- **rustdoc runs with `-D warnings`**, as docs.rs builds, in CI and in the publish
+  workflow's `verify` job: `-D missing_docs` alone let broken intra-doc links through.
+- **The MSRV is checked**: an `MSRV` job in CI and in the publish workflow (which waits for
+  it) runs the tests and the bare-metal builds, with and without the `plumbob-async`
+  feature, on the `rust-version` from `Cargo.toml` (1.85) with `cargo msrv verify`; the
+  crate declared it, and nothing checked it.
+- **The coverage job's cache is keyed on the Rust version** as well as `Cargo.lock`, so a
+  `target/` built by an older Rust is not restored: `cargo llvm-cov clean --workspace`
+  leaves its instrumented binaries behind, and the report would count their lines as
+  uncovered (it did so in other Ashlar crates after the update to Rust 1.100).
+- **`doc/setup.md` lists the checks CI runs**: clippy over all targets with and without the
+  `plumbob-async` feature, rustdoc with `-D warnings`, the bare-metal `no_std` builds and
+  the MSRV check.
+- **`doc/testing.md` describes the builds** CI runs the tests in, and the README doctest.
+- **`CONTRIBUTING.md` matches the CI checks**: clippy over all targets with and without the
+  `plumbob-async` feature, rustdoc with `-D warnings`, the bare-metal builds and the MSRV.
+- **The README's documentation list links `CONTRIBUTING.md`.**
+- **The publish workflow's `verify` job fails on a `[patch]` section** too, as `ci.yml`
+  does on `main`: the release does not wait for `main`'s CI.
+- **`CONTRIBUTING.md` states the provenance rule** for claims about HDMI behaviour (two
+  independent public implementations, cited), and gives the coverage tolerance as 0.1
+  percentage points, as CI checks it, not 0.1%.
+- **The docs give the coverage tolerance as 0.1 percentage points everywhere** (as CI
+  checks it, not 0.1%), and `doc/setup.md` installs the cargo-msrv version CI pins
+  (0.19.6).
+- **The MSRV job shows why it failed**: `cargo msrv verify` runs without
+  `--output-format minimal`, which printed only `true` or `false` and dropped the compiler
+  error.
+- **`CONTRIBUTING.md` has a publishing section**: the crates culvert-async builds on and
+  re-exports, when their breaking releases are culvert-async's, and the order in which
+  releases reach the crates that depend on it.
+- **`doc/setup.md` says to measure the coverage baseline with the Rust version CI uses**:
+  Rust versions count lines differently, so a baseline measured with another version can
+  fail CI without a change in coverage.
+
 ## [0.3.1] - 2026-11-03
 
 ### Internal
