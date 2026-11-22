@@ -283,12 +283,14 @@ async fn every_type_is_re_exported_at_the_crate_root() {
     let _: Option<culvert_async::LtpReq> = None;
     let _: Option<culvert_async::LtpRequests> = None;
     let _: Option<culvert_async::ProtocolError> = None;
+    let _: Option<culvert_async::ReadModifyWriteError<()>> = None;
     let _: Option<culvert_async::RsCorrectionCount> = None;
     let _: Option<culvert_async::ScdcError<()>> = None;
     let _: Option<culvert_async::ScramblerStatus> = None;
     let _: Option<culvert_async::SourceTestConfig> = None;
     let _: Option<culvert_async::StatusFlags> = None;
     let _: Option<culvert_async::TmdsConfig> = None;
+    let _: Option<culvert_async::TmdsConfigReading> = None;
     let _: Option<culvert_async::UpdateFlags> = None;
     let _: Option<Scdc<SimulatedScdc>> = None;
     // The traits, `ScdcTransport` and `SendScdcTransport`, are imported at the top.
@@ -331,6 +333,12 @@ async fn every_operation<T: SendScdcTransport>(scdc: &mut Scdc<T>) {
         high_tmds_clock_ratio: false,
     }))
     .await;
+    let _ = send(scdc.read_tmds_config()).await;
+    let _ = send(scdc.update_tmds_config(TmdsConfig {
+        scrambling_enable: true,
+        high_tmds_clock_ratio: true,
+    }))
+    .await;
     let _ = send(scdc.read_scrambler_status()).await;
     let _ = send(scdc.write_frl_config(FrlConfig::new(
         FrlRate::Rate6Gbps4Lanes,
@@ -354,6 +362,6 @@ async fn every_operation_is_send_over_a_send_transport() {
     // The writes reached the registers.
     let transport = scdc.into_transport().0;
     assert_eq!(transport.get(0x02), 0x01);
-    assert_eq!(transport.get(0x20), 0x01);
+    assert_eq!(transport.get(0x20), 0x03, "written 0x01, then updated");
     assert_eq!(transport.get(0x31), 0x03);
 }

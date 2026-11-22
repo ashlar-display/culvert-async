@@ -35,6 +35,10 @@ mod test_transport;
 ///   link training there, so repeating it mid-training may restart the sink's training.
 ///   To abandon a training attempt, return the link to TMDS (plumbob-async's
 ///   `exit_to_tmds`) rather than repeating the write.
+/// - **[`update_tmds_config`]** reads `TMDS_Config` and writes it back: dropped, it may
+///   have written nothing or the new byte. Repeating it reads the byte again and writes
+///   the same two bits, keeping the other bits as read then, so it is safe to repeat; to
+///   know which happened instead, read the register back ([`read_tmds_config`]).
 /// - **`clear_update_flags`** writes 1 to clear, so repeating it can clear a flag the sink
 ///   set again in the meantime. For `CED_Update` and `RSED_Update` that loses at most a
 ///   hint: any counts stay in the counters, which are read regularly anyway. For a flag
@@ -44,6 +48,8 @@ mod test_transport;
 ///   ([`read_ced`], [`read_rs_correction`]), which a sink may clear when they are read:
 ///   a dropped read of them can lose counts.
 ///
+/// [`update_tmds_config`]: Self::update_tmds_config
+/// [`read_tmds_config`]: Self::read_tmds_config
 /// [`read_update_flags`]: Self::read_update_flags
 /// [`write_frl_config`]: Self::write_frl_config
 /// [`read_ced`]: Self::read_ced

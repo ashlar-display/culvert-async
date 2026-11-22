@@ -15,9 +15,7 @@ And culvert's additions to registers it already reads, each additive:
 
 - **One CED and RS read (0x50–0x5A)** — both in one transaction, for a link health monitor;
   designed with the monitor.
-- **Read-back decoders for register dumps** — `Config_0`, `Config_1`, `TMDS_Config`.
-- **Reading `TMDS_Config` (0x20)** — `read_tmds_config`, for the planned TMDS bring-up
-  crate's reconnect check.
+- **Read-back decoders for register dumps** — `Config_0`, `Config_1`.
 - **Raw CED bytes in `CedReading`** — when a consumer needs them.
 
 None of these will be added here ahead of culvert.

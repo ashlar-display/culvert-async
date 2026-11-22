@@ -126,7 +126,7 @@ cargo add plumbob-async
 Training through `Scdc<T>` can run on a multi-threaded executor when the transport is
 `Send` and `Sync` and its futures are `Send`. Code generic over the transport and the PHY
 proves that with the `Send` twins: bound the transport by `SendScdcTransport`
-(re-exported here) and the PHY by `SendHdmiPhy` (re-exported by plumbob-async), and by the
+(re-exported here) and the PHY by `SendFrlPhy` (re-exported by plumbob-async), and by the
 twins alone. Code bounded by plumbob-async's `SendScdcClient` needs a small wrapper; see
 [`doc/architecture.md`](doc/architecture.md) ("`Send` futures"), which also shows where the
 poll interval and a deadline belong (not in the transport).
@@ -137,7 +137,7 @@ poll interval and a deadline belong (not in the transport).
 |---------------------------|-------------|---------|
 | Version                   | 0x01–0x02   | `read_sink_version`, `write_source_version` |
 | Update flags              | 0x10        | `read_update_flags`, `clear_update_flags` |
-| TMDS / scrambling         | 0x20–0x21   | `write_tmds_config`, `read_scrambler_status` |
+| TMDS / scrambling         | 0x20–0x21   | `write_tmds_config`, `read_tmds_config`, `update_tmds_config`, `read_scrambler_status` |
 | FRL config                | 0x30–0x31   | `write_config_0`, `write_frl_config` |
 | Source test configuration | 0x35        | `read_source_test_config` |
 | Status flags              | 0x40        | `read_status_flags` |
@@ -190,7 +190,8 @@ only with the optional `plumbob-async` feature, which makes `Scdc<T>` implement
 - **Link training state machine** — the sequencing of FRL training belongs in
   `plumbob-async`. `culvert-async` provides the register operations; the state machine
   decides when to call them.
-- **PHY configuration** — `HdmiPhy` operations are the link training layer's concern.
+- **PHY configuration** — PHY operations (`FrlPhy`, `TmdsPhy`) are the concern of the link
+  training and TMDS bring-up layers.
 - **I²C / DDC transport** — platform backends implement
   `hdmi_hal_async::scdc::ScdcTransport`. `culvert-async` never touches I²C directly.
 

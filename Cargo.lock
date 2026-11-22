@@ -16,9 +16,9 @@ checksum = "790eea4361631c5e7d22598ecd5723ff611904e3344ce8720784c93e3d83d40b"
 
 [[package]]
 name = "culvert"
-version = "0.4.0"
+version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "65030f4f1970b2f559bb465d4bbda1ddcafba369e0c8c66aff97eaa732094e51"
+checksum = "20d9a3179daaf798a93f6023bdbf5f6361f529cb711534b0b7b256fdf80c835e"
 dependencies = [
  "display-types",
  "hdmi-hal",
@@ -27,7 +27,7 @@ dependencies = [
 
 [[package]]
 name = "culvert-async"
-version = "0.4.0"
+version = "0.4.1"
 dependencies = [
  "culvert",
  "display-types",
