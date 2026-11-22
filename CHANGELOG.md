@@ -7,6 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **`Scdc::read_tmds_config`** reads `TMDS_Config` (0x20) and returns a
+  `TmdsConfigReading`: the two bits `write_tmds_config` sets, and the whole byte, so a
+  sink that sets reserved bits stays visible. The async counterpart of culvert's.
+- **`Scdc::update_tmds_config`**: a read-modify-write of `TMDS_Config` that sets
+  `Scrambling_Enable` and `TMDS_Bit_Clock_Ratio` and keeps every other bit as read; the
+  async counterpart of culvert's. `ReadModifyWriteError` says which transfer failed: `Read`
+  (nothing written) or `Write`. The client's "Cancellation" documentation says what a
+  dropped call leaves behind: it is safe to repeat.
+- **`TmdsConfigReading` and `ReadModifyWriteError` are re-exported** from culvert, beside
+  the other register and error types.
+
+### Changed
+
+- **Requires culvert 0.4.1**, whose codec decodes the `TmdsConfigReading` this crate
+  returns.
+
+### Fixed
+
+- **The README, `doc/architecture.md` and `doc/testing.md` name the PHY traits by their
+  current names**, `FrlPhy` and `SendFrlPhy` (`TmdsPhy` beside them in "Out of scope"); they
+  still said `HdmiPhy` and `SendHdmiPhy`, renamed in hdmi-hal-async 0.4.
+
 ## [0.4.0] - 2026-11-22
 
 ### Breaking changes

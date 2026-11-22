@@ -91,7 +91,7 @@ When compiled with `--features plumbob-async`, two more sets of tests run, both 
   `Pending` once) on every other operation, so training runs over I/O that really
   suspends.
 - **`Send` futures** (also `tests/plumbob_async.rs`): a function generic over
-  `SendScdcTransport` and `SendHdmiPhy` must return a `Send` future that trains through
+  `SendScdcTransport` and `SendFrlPhy` must return a `Send` future that trains through
   the plain `Scdc<T>`, runs LTS:L and trains again with events, so it compiles only if
   training through `Scdc<T>` could be spawned on a multi-threaded executor. It runs over
   the same simulated sink, behind a `Mutex` (the transport twin is `Sync`).

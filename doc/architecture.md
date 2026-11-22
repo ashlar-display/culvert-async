@@ -28,7 +28,8 @@ culvert-async covers:
 - `Scdc<T>`: the client, wrapping an async `ScdcTransport`, with culvert's methods as
   `async fn`s:
   - version negotiation: `read_sink_version`, `write_source_version`,
-  - scrambling control: `write_tmds_config`, `read_scrambler_status`,
+  - scrambling control: `write_tmds_config`, `read_tmds_config`, `update_tmds_config`,
+    `read_scrambler_status`,
   - update flags: `read_update_flags`, `clear_update_flags`,
   - FRL configuration and training: `write_config_0`, `write_frl_config`,
     `read_source_test_config`, `read_status_flags`, `read_ltp_requests`,
@@ -184,7 +185,8 @@ src/
   client/
     mod.rs             — Scdc<T>, new, into_transport
     version.rs         — read_sink_version, write_source_version
-    scrambling.rs      — write_tmds_config, read_scrambler_status
+    scrambling.rs      — write_tmds_config, read_tmds_config, update_tmds_config,
+                         read_scrambler_status
     update.rs          — read_update_flags, clear_update_flags
     frl.rs             — write_config_0, write_frl_config, read_source_test_config,
                          read_status_flags, read_ltp_requests
@@ -224,16 +226,16 @@ spawned on a multi-threaded one.
 Code generic over the plain `ScdcTransport` cannot prove the futures `Send` at all: an
 `async fn` in a trait promises nothing about its future. Generic code bounds the
 transport by hdmi-hal-async's `Send` twin, `SendScdcTransport` (`Send + Sync`, with `Send`
-futures and errors), and the PHY by `SendHdmiPhy`. Then training through the plain
+futures and errors), and the PHY by `SendFrlPhy`. Then training through the plain
 `Scdc<T>` is `Send`: `Scdc<T>`'s `ScdcClient` implementation is concrete, so the compiler
 sees through it to the transport's futures. No second client type is needed, and a test
 (`tests/plumbob_async.rs`) checks this at compile time. Bound by the twins alone: an added
-`+ ScdcTransport` or `+ HdmiPhy` makes the compiler use that bound instead of the blanket
+`+ ScdcTransport` or `+ FrlPhy` makes the compiler use that bound instead of the blanket
 implementation, and the futures are no longer known to be `Send`.
 
 ```rust
 use culvert_async::{Scdc, SendScdcTransport};
-use plumbob_async::{FrlTrainer, HdmiForumFrl, SendHdmiPhy, TrainingConfig};
+use plumbob_async::{FrlTrainer, HdmiForumFrl, SendFrlPhy, TrainingConfig};
 
 const RATES: &[HdmiForumFrl] = &[
     HdmiForumFrl::Rate12Gbps4Lanes,
@@ -243,7 +245,7 @@ const RATES: &[HdmiForumFrl] = &[
 fn spawn_training<T, P>(mut trainer: FrlTrainer<Scdc<T>, P>)
 where
     T: SendScdcTransport + 'static,
-    P: SendHdmiPhy + 'static,
+    P: SendFrlPhy + 'static,
 {
     tokio::spawn(async move {
         let _ = trainer.train(RATES, &TrainingConfig::default()).await;
@@ -252,14 +254,14 @@ where
 ```
 
 Both twins are re-exported where the code needs them: `SendScdcTransport` from
-culvert-async, `SendHdmiPhy` from plumbob-async. `train_with_events` is `Send` too when its
+culvert-async, `SendFrlPhy` from plumbob-async. `train_with_events` is `Send` too when its
 callback is.
 
 **Cancellation.** The first rule is hdmi-hal-async's: stop between calls (check a
 deadline before each one) rather than dropping a future mid-flight, so no transaction is
 cut short whatever the transport does. When a future is dropped anyway, `Scdc<T>` stays
-usable — every method performs at most one transport call and keeps no state between
-calls — and the transport says what a cancelled transfer leaves behind (hdmi-hal-async's
+usable — every method but `update_tmds_config` (a read, then a write) performs at most
+one transport call, and none keeps state between calls — and the transport says what a cancelled transfer leaves behind (hdmi-hal-async's
 `ScdcTransport`, "Cancellation"; plumbob-async's `exit_to_tmds` then returns a dropped
 training attempt to TMDS). What the dropped call did is unknown; `Scdc<T>`'s
 documentation says, method by method, what to do about it:
@@ -268,6 +270,8 @@ documentation says, method by method, what to do about it:
   the same contents when repeated, but a `Config_1` write is what starts training on the
   sink, so repeating it mid-training may restart it: to abandon an attempt, return to TMDS
   (`exit_to_tmds`) instead;
+- `update_tmds_config` may have written nothing or the new byte; repeating it reads
+  `TMDS_Config` again and writes the same two bits, so it is safe to repeat;
 - `clear_update_flags` is write-1-to-clear: repeating it can clear a flag the sink set
   again meanwhile, harmless for `CED_Update` / `RSED_Update` (hints kept until cleared:
   any counts stay in the counters), not for `FLT_Update` or `FRL_Start`, so read `Update_0` again

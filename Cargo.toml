@@ -23,7 +23,7 @@ unexpected_cfgs = { level = "warn", check-cfg = ["cfg(docsrs)"] }
 plumbob-async = ["dep:plumbob-async", "culvert/plumbob"]
 
 [dependencies]
-culvert = { version = "0.4", default-features = false }
+culvert = { version = "0.4.1", default-features = false }
 hdmi-hal-async = { version = "0.4", default-features = false }
 plumbob-async = { version = "0.4", optional = true, default-features = false }
 
