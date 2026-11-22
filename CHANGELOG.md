@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.1] - 2026-11-22
+
 ### Added
 
 - **`Scdc::read_tmds_config`** reads `TMDS_Config` (0x20) and returns a
