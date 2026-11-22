@@ -24,9 +24,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Requires culvert 0.4.1**, whose codec decodes the `TmdsConfigReading` this crate
   returns.
-
-### Fixed
-
 - **The README, `doc/architecture.md` and `doc/testing.md` name the PHY traits by their
   current names**, `FrlPhy` and `SendFrlPhy` (`TmdsPhy` beside them in "Out of scope"); they
   still said `HdmiPhy` and `SendHdmiPhy`, renamed in hdmi-hal-async 0.4.

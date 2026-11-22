@@ -35,10 +35,12 @@ culvert-async covers:
     `read_source_test_config`, `read_status_flags`, `read_ltp_requests`,
   - error counters: `read_ced` (the CED block in one read, checksum checked),
     `read_rs_correction`,
-- re-exports of culvert's public types (`ScdcError`, `ProtocolError`, `TmdsConfig`,
-  `ScramblerStatus`, `Config0`, `FrlConfig`, `FfeLevels`, `FrlRate`, `SourceTestConfig`,
-  `StatusFlags`, `LtpReq`, `LtpRequests`, `UpdateFlags`, `ClearableUpdateFlags`,
-  `CedCount`, `CedCounters`, `HdmiLanes` (display-types', through culvert), `CedReading`, `CedWarning`, `RsCorrectionCount`),
+- re-exports of culvert's public types (`ScdcError`, `ProtocolError`,
+  `ReadModifyWriteError`, `TmdsConfig`, `TmdsConfigReading`, `ScramblerStatus`, `Config0`,
+  `FrlConfig`, `FfeLevels`, `FrlRate`, `SourceTestConfig`, `StatusFlags`, `LtpReq`,
+  `LtpRequests`, `UpdateFlags`, `ClearableUpdateFlags`, `CedCount`, `CedCounters`,
+  `HdmiLanes` (display-types', through culvert), `CedReading`, `CedWarning`,
+  `RsCorrectionCount`),
   and of hdmi-hal-async's
   `ScdcTransport`, the bound on `Scdc<T>`,
 - the `plumbob_async::ScdcClient` implementation for `Scdc<T>`, behind the `plumbob-async`
@@ -261,17 +263,19 @@ callback is.
 deadline before each one) rather than dropping a future mid-flight, so no transaction is
 cut short whatever the transport does. When a future is dropped anyway, `Scdc<T>` stays
 usable — every method but `update_tmds_config` (a read, then a write) performs at most
-one transport call, and none keeps state between calls — and the transport says what a cancelled transfer leaves behind (hdmi-hal-async's
-`ScdcTransport`, "Cancellation"; plumbob-async's `exit_to_tmds` then returns a dropped
-training attempt to TMDS). What the dropped call did is unknown; `Scdc<T>`'s
-documentation says, method by method, what to do about it:
+one transport call, and none keeps state between calls — and the transport says what a
+cancelled transfer leaves behind (hdmi-hal-async's `ScdcTransport`, "Cancellation";
+plumbob-async's `exit_to_tmds` then returns a dropped training attempt to TMDS). What the
+dropped call did is unknown; `Scdc<T>`'s documentation says, method by method, what to do
+about it:
 
 - whole-register writes (`Source_Version`, `TMDS_Config`, `Config_0`, `Config_1`) write
   the same contents when repeated, but a `Config_1` write is what starts training on the
   sink, so repeating it mid-training may restart it: to abandon an attempt, return to TMDS
   (`exit_to_tmds`) instead;
 - `update_tmds_config` may have written nothing or the new byte; repeating it reads
-  `TMDS_Config` again and writes the same two bits, so it is safe to repeat;
+  `TMDS_Config` again and writes the same two bits, so it is safe to repeat, and
+  `read_tmds_config` tells which;
 - `clear_update_flags` is write-1-to-clear: repeating it can clear a flag the sink set
   again meanwhile, harmless for `CED_Update` / `RSED_Update` (hints kept until cleared:
   any counts stay in the counters), not for `FLT_Update` or `FRL_Start`, so read `Update_0` again
