@@ -23,9 +23,9 @@ unexpected_cfgs = { level = "warn", check-cfg = ["cfg(docsrs)"] }
 plumbob-async = ["dep:plumbob-async", "culvert/plumbob"]
 
 [dependencies]
-culvert = { version = "0.3", default-features = false }
+culvert = { version = "0.4", default-features = false }
 hdmi-hal-async = { version = "0.4", default-features = false }
-plumbob-async = { version = "0.3", optional = true, default-features = false }
+plumbob-async = { version = "0.4", optional = true, default-features = false }
 
 [[example]]
 name = "scdc"
@@ -34,13 +34,4 @@ path = "examples/scdc/main.rs"
 [dev-dependencies]
 display-types = { version = ">=0.4.3, <0.6", default-features = false }
 pollster = { version = "0.3", features = ["macro"] }
-
-# Prototype against the unreleased breaking releases of culvert, plumbob-async and plumbob
-# (the plumbob-async feature): pushed commits of their branches (culvert's feat/tmds-config,
-# plumbob-async's and plumbob's feat/frl-phy), on hdmi-hal 0.7 and hdmi-hal-async 0.4, moved
-# by hand. plumbob is pinned here too, at the commit culvert and plumbob-async pin, since a
-# dependency's [patch] does not apply to this crate's graph. Removed when they are released.
-[patch.crates-io]
-culvert = { git = "https://github.com/ashlar-display/culvert", rev = "acab6379a04b6feb9e6740e4ef143dba4906de06" }
-plumbob-async = { git = "https://github.com/ashlar-display/plumbob-async", rev = "e526a055b7ab0f1cb74e160fc7c45d685381b903" }
-plumbob = { git = "https://github.com/ashlar-display/plumbob", rev = "2e244830b850eb27167e58d00b4814ac4fc0e1af" }
+maquette = { version = "0.1", features = ["std", "async"] }

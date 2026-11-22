@@ -11,12 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Requires hdmi-hal-async 0.4**, its breaking release on hdmi-hal 0.7: the transport traits
   this crate's client is built on are 0.4's, whose errors are bounded by `DdcError`.
-- **Requires culvert's breaking release on hdmi-hal 0.7**, whose codec this crate shares;
+- **Requires culvert 0.4**, on hdmi-hal 0.7, whose codec this crate shares;
   `ScramblerStatus` carries the byte read (`raw`), so a status read from a sink that sets
   reserved bits no longer compares equal to `ScramblerStatus::new`'s.
-- **The `plumbob-async` feature requires plumbob-async's breaking release**, on
-  hdmi-hal-async 0.4, whose PHY trait is `FrlPhy` (was `HdmiPhy`); the `ScdcClient`
-  implementation it enables is unchanged.
+- **The `plumbob-async` feature requires plumbob-async 0.4**, on hdmi-hal-async 0.4, whose
+  PHY trait is `FrlPhy` (was `HdmiPhy`); the `ScdcClient` implementation it enables is
+  unchanged.
 
 ### Changed
 
@@ -25,6 +25,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Internal
 
+- **The client is tested against maquette's simulated sink** (`tests/simulated_sink.rs`, a
+  dev-dependency on maquette): over hdmi-hal-async's `SendScdcOverDdc` on its async DDC bus,
+  a bring-up on another thread, the update flags, the version registers and bus errors.
 - **The README's Rust example runs as a doctest** (`ReadmeDoctests` in `lib.rs`, compiled
   only for `cargo test`), on `pollster` against a hidden sink that is ready for FRL training, has `FLT_update`
   pending and reports errors on lane 0, so every branch of it runs; hidden asserts check

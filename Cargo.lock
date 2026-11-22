@@ -9,9 +9,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "843867be96c8daad0d758b57df9392b6d8d271134fce549de6ce169ff98a92af"
 
 [[package]]
+name = "critical-section"
+version = "1.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "790eea4361631c5e7d22598ecd5723ff611904e3344ce8720784c93e3d83d40b"
+
+[[package]]
 name = "culvert"
-version = "0.3.1"
-source = "git+https://github.com/ashlar-display/culvert?rev=acab6379a04b6feb9e6740e4ef143dba4906de06#acab6379a04b6feb9e6740e4ef143dba4906de06"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "65030f4f1970b2f559bb465d4bbda1ddcafba369e0c8c66aff97eaa732094e51"
 dependencies = [
  "display-types",
  "hdmi-hal",
@@ -25,6 +32,7 @@ dependencies = [
  "culvert",
  "display-types",
  "hdmi-hal-async",
+ "maquette",
  "plumbob-async",
  "pollster",
 ]
@@ -58,9 +66,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "maquette"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9ba101d565ea1c20d213859f8c202caf28b7b28371de20bafa505bd7ba5231d5"
+dependencies = [
+ "critical-section",
+ "hdmi-hal",
+ "hdmi-hal-async",
+]
+
+[[package]]
 name = "plumbob"
-version = "0.4.1"
-source = "git+https://github.com/ashlar-display/plumbob?rev=2e244830b850eb27167e58d00b4814ac4fc0e1af#2e244830b850eb27167e58d00b4814ac4fc0e1af"
+version = "0.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "07cef20b7ce22a0cf4e8c0dda920f1a189c6d9ab78dc3a4a69d60223d1525525"
 dependencies = [
  "display-types",
  "hdmi-hal",
@@ -68,8 +88,9 @@ dependencies = [
 
 [[package]]
 name = "plumbob-async"
-version = "0.3.1"
-source = "git+https://github.com/ashlar-display/plumbob-async?rev=e526a055b7ab0f1cb74e160fc7c45d685381b903#e526a055b7ab0f1cb74e160fc7c45d685381b903"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "dd573d3968f88edeb72646874efda086ec8f807764bec4e9a893e714c42e0773"
 dependencies = [
  "display-types",
  "hdmi-hal-async",
