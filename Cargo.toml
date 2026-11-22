@@ -23,9 +23,9 @@ unexpected_cfgs = { level = "warn", check-cfg = ["cfg(docsrs)"] }
 plumbob-async = ["dep:plumbob-async", "culvert/plumbob"]
 
 [dependencies]
-culvert = { version = "0.3", default-features = false }
-hdmi-hal-async = { version = "0.3", default-features = false }
-plumbob-async = { version = "0.3", optional = true, default-features = false }
+culvert = { version = "0.4", default-features = false }
+hdmi-hal-async = { version = "0.4", default-features = false }
+plumbob-async = { version = "0.4", optional = true, default-features = false }
 
 [[example]]
 name = "scdc"
@@ -34,3 +34,4 @@ path = "examples/scdc/main.rs"
 [dev-dependencies]
 display-types = { version = ">=0.4.3, <0.6", default-features = false }
 pollster = { version = "0.3", features = ["macro"] }
+maquette = { version = "0.1", features = ["std", "async"] }

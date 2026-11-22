@@ -39,7 +39,7 @@ mod tests {
     use super::super::Scdc;
     use super::super::test_transport::TestTransport;
     use crate::ScdcError;
-    use crate::{ScramblerStatus, TmdsConfig};
+    use crate::TmdsConfig;
 
     #[pollster::test]
     async fn tmds_config_scrambling_only() {
@@ -81,20 +81,20 @@ mod tests {
     async fn scrambler_status_bit0_set() {
         let mut sim = TestTransport::new();
         sim.set(0x21, 0xFF); // all bits set; only bit 0 is defined
-        assert_eq!(
-            Scdc::new(sim).read_scrambler_status().await.unwrap(),
-            ScramblerStatus::new(true)
-        );
+        let status = Scdc::new(sim).read_scrambler_status().await.unwrap();
+        // The bit decoded, and the byte as read, reserved bits included.
+        assert!(status.scrambling_active);
+        assert_eq!(status.raw, 0xFF);
     }
 
     #[pollster::test]
     async fn scrambler_status_bit0_clear() {
         let mut sim = TestTransport::new();
         sim.set(0x21, 0xFE); // bit 0 clear, other bits set (reserved)
-        assert_eq!(
-            Scdc::new(sim).read_scrambler_status().await.unwrap(),
-            ScramblerStatus::new(false)
-        );
+        let status = Scdc::new(sim).read_scrambler_status().await.unwrap();
+        // The bit decoded, and the byte as read, reserved bits included.
+        assert!(!status.scrambling_active);
+        assert_eq!(status.raw, 0xFE);
     }
 
     #[pollster::test]

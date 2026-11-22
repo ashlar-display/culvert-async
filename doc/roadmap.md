@@ -28,12 +28,8 @@ None of these will be added here ahead of culvert.
   for code bounded by that trait (see `doc/architecture.md`, "`Send` futures"). Its trigger,
   a consumer generic over `SendScdcClient`, is now in sight: the planned link
   orchestrator's async companion drives training generic over the SCDC client, so that a
-  third-party client can be used. Planned for culvert-async's release that follows
-  hdmi-hal-async's breaking release (below).
-- **Following hdmi-hal-async's PHY trait split** — culvert-async re-exports
-  hdmi-hal-async's `ScdcTransport` and `SendScdcTransport`, so hdmi-hal-async's planned
-  breaking release is a breaking release here too; it carries `SendScdc<T>`. The same release
-  bounds the transport's error by `DdcError` (a kind per failure) and adds `DdcBus`:
-  culvert-async re-exports `DdcError`, `DdcErrorKind` and `NoAcknowledgeSource` next to the
-  transport traits. Over a `DdcBus`, `SendScdc<T>` runs on hdmi-hal-async's
-  `SendScdcOverDdc`, the adapter that implements `SendScdcTransport`.
+  third-party client can be used. Additive; it follows plumbob-async's move to
+  hdmi-hal-async's `FrlPhy`.
+- **`DdcError` re-exports** — `DdcError`, `DdcErrorKind` and `NoAcknowledgeSource` next to
+  the transport traits, since an implementor of `ScdcTransport` writes them; additive, with
+  culvert's.

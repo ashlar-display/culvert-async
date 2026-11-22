@@ -57,6 +57,19 @@ The CED unit tests (`src/client/ced.rs`) match `CedWarning`s by their fields rat
 building them: the variants are `#[non_exhaustive]`, so outside culvert they can be
 matched but not constructed, as a caller meets them.
 
+### Against a simulated sink (`tests/simulated_sink.rs`)
+
+The client over hdmi-hal-async's `SendScdcOverDdc`, against
+[maquette](https://docs.rs/maquette)'s simulated sink on its async DDC bus.
+
+**Covered:**
+- An async bring-up spawned on another thread, which shows the whole future is `Send`: the
+  TMDS configuration written, the PHY powered on, configured, scrambling and started, and
+  the sink's scrambling lock read back after a simulated millisecond
+- The update flags read and cleared one at a time
+- The version registers read and written
+- Bus errors reaching the client with their kind
+
 ### `plumbob-async` feature tests
 
 When compiled with `--features plumbob-async`, two more sets of tests run, both culvert's
