@@ -22,8 +22,16 @@ None of these will be added here ahead of culvert.
 
 ## culvert-async's own
 
-- **`SendScdc<T>`** — a second client type implementing plumbob-async's `SendScdcClient`,
-  for code bounded by that trait (see `doc/architecture.md`, "`Send` futures"). Its trigger,
+- **`SendScdc<T>`** — a second client type for code bounded by a `Send` twin, which takes
+  no `Scdc<T>` (see `doc/architecture.md`, "`Send` futures"). One wrapper serves both
+  consumers' twins: plumbob-async's `SendScdcClient`, implemented here with the
+  `plumbob-async` feature, and spiritlevel-async's `SendTmdsScdc`, implemented in
+  spiritlevel-async as its `TmdsScdc` for `Scdc<T>` is. So code generic over the twins trains
+  FRL and brings up TMDS on one client; a wrapper defined by each consumer would give a
+  caller two types for one client, of which no value implements both twins. Its shape is
+  chosen with both consumers in mind: how the client is reached and taken back (a public
+  field or accessors), and whether a borrow, `&mut SendScdc<T>`, implements the twins too,
+  so that a client can be lent to each procedure in turn as `&mut Scdc<T>` is. Its trigger,
   a consumer generic over `SendScdcClient`, is now in sight: the planned link
   orchestrator's async companion drives training generic over the SCDC client, so that a
   third-party client can be used. Additive; it follows plumbob-async's move to
