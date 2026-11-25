@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Internal
+
+- **The tests' `pollster` dev-dependency moved from 0.3 to 1.0**; `#[pollster::test]`
+  and `block_on` (in the tests, the documentation examples and the `scdc` example) are
+  unchanged, and 1.0 needs Rust 1.69, within this crate's MSRV.
+
 ## [0.4.1] - 2026-11-22
 
 ### Added
